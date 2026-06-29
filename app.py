@@ -11,12 +11,24 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from signals import combine_confidence, make_label, signal_llm, signal_stylometric
 
 load_dotenv()
 
 app = Flask(__name__)
+
+# Rate limiting keyed by client IP. In-memory storage is fine for local/dev
+# (single process); swap storage_uri for Redis in production. See README for
+# the rationale behind the per-route limits.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],
+    storage_uri="memory://",
+)
 
 # In-memory store + a structured, append-only audit log on disk (JSON Lines).
 SUBMISSIONS: dict[str, dict] = {}
@@ -48,6 +60,7 @@ def log():
 
 
 @app.route("/submit", methods=["POST"])
+@limiter.limit("10 per minute;100 per day")
 def submit():
     """Accept text + creator_id, run Signal 1, return attribution + placeholders.
 
