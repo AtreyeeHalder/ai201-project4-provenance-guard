@@ -64,6 +64,8 @@ flowchart TD
     H -->|response: appeal accepted| A2
 ```
 
+![Mermaid Architecture Diagram](assets/Mermaid%20Architecture%20Diagram.png)
+
 **Submission flow:** A client posts raw text to `/submit`; it passes through the LLM classifier and the stylometric heuristics, whose scores are combined into a single confidence, mapped to a transparency label, logged, and returned. **Appeal flow:** A client posts a `submission_id` and reason to `/appeal`; the system flips that submission's status to `under review`, logs the appeal, and confirms acceptance.
 
 ## AI Tool Plan
