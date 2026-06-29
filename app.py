@@ -111,5 +111,52 @@ def submit():
     )
 
 
+@app.route("/appeal", methods=["POST"])
+def appeal():
+    """Accept an appeal for a prior classification (planning.md appeals flow).
+
+    Looks up the submission by content_id, flips its status to "under review",
+    and logs the appeal alongside the original classification decision. Does
+    not run automated re-classification — a human reviewer handles the queue.
+    """
+    data = request.get_json(silent=True) or {}
+    content_id = (data.get("content_id") or "").strip()
+    creator_reasoning = (data.get("creator_reasoning") or "").strip()
+
+    if not content_id:
+        return jsonify({"error": "Field 'content_id' is required and cannot be empty."}), 400
+    if not creator_reasoning:
+        return jsonify({"error": "Field 'creator_reasoning' is required and cannot be empty."}), 400
+
+    submission = SUBMISSIONS.get(content_id)
+    if submission is None:
+        return jsonify({"error": f"No submission found for content_id '{content_id}'."}), 404
+
+    # Status update: classified -> under review.
+    submission["status"] = "under review"
+
+    # Log the appeal alongside the original classification decision.
+    write_log(
+        {
+            "content_id": content_id,
+            "creator_id": submission["creator_id"],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "event": "appeal",
+            "creator_reasoning": creator_reasoning,
+            "original_label": submission["label"],
+            "original_confidence": submission["confidence"],
+            "status": "under review",
+        }
+    )
+
+    return jsonify(
+        {
+            "content_id": content_id,
+            "status": "under review",
+            "message": "Appeal received and queued for human review.",
+        }
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

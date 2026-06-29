@@ -140,16 +140,28 @@ def combine_confidence(p_llm: float, p_style: float) -> float:
 
 
 def make_label(confidence: float) -> str:
-    """Map a combined confidence to a transparency category (planning.md).
+    """Map a combined confidence to a transparency label (planning.md variants).
 
-    >=0.7 -> "Likely AI-generated"; 0.4-0.7 -> "Uncertain"; <0.4 -> "Likely
-    human-written".
+    Three variants, selected by the thresholds in planning.md:
+    >=0.7 -> Likely AI; 0.4-0.7 -> Uncertain; <0.4 -> Likely human. The exact
+    text matches the Transparency Label Design section.
     """
     if confidence >= 0.7:
-        return "Likely AI-generated"
+        return (
+            "⚠️ Likely AI-generated (confidence 0.7+). This text shows strong "
+            "signals of automated generation. This is an estimate, not proof; "
+            "the user may appeal."
+        )
     if confidence >= 0.4:
-        return "Uncertain"
-    return "Likely human-written"
+        return (
+            "❓ Uncertain (confidence 0.4–0.7). Our signals disagree or are "
+            "weak; we cannot confidently classify this text. Treat the result "
+            "with caution."
+        )
+    return (
+        "✓ Likely human-written (confidence under 0.4). This text shows "
+        "signals consistent with human writing. This is an estimate, not proof."
+    )
 
 
 if __name__ == "__main__":
