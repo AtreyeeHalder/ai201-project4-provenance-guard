@@ -166,7 +166,23 @@ One way the spec in planning.md helped me is through constructing the Architectu
 
 ## Demo Video
 
-Link: 
+Link: https://drive.google.com/file/d/1DWGDpS5haKcXwnmafEFjBOp_qWOICp3x/view?usp=sharing
 
 This demo video includes the following:
-- 
+- Introduction to Provenance Guard's architecture including the submission flow and appeal flow
+- Starting the server in a terminal with `python app.py`
+- In another terminal, testing the system on a high-confidence AI input with:
+```
+$r = Invoke-RestMethod -Uri http://127.0.0.1:5000/submit -Method Post -ContentType "application/json" -Body '{"creator_id":"u1","text":"This transformative paradigm shift represents a fundamental advancement. It is important to note that the implications are significant. Furthermore, the comprehensive framework ensures optimal outcomes across all stakeholders."}'
+$r
+```
+- Testing the system on a human text input with:
+```
+Invoke-RestMethod -Uri http://127.0.0.1:5000/submit -Method Post -ContentType "application/json" -Body '{"creator_id":"u2","text":"ok so i finally tried that new ramen place downtown and honestly? underwhelming. broth was kinda flat, noodles mushy. my friend liked hers tho lol"}'
+```
+- Testing the appeal flow with:
+```
+Invoke-RestMethod -Uri http://127.0.0.1:5000/appeal -Method Post -ContentType "application/json" -Body "{`"content_id`":`"$($r.content_id)`",`"creator_reasoning`":`"I wrote this myself, I am a non-native English speaker so my writing looks formal.`"}"
+```
+- Showing the `audit_log.jsonl` file with the submission and appeal audit logs
+- Illustrating design choices through the Rate Limiting and Known Limitations sections of `README.md`
