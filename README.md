@@ -16,8 +16,6 @@ flowchart TD
     H -->|response: appeal accepted| A2
 ```
 
-![Mermaid Architecture Diagram](assets/Mermaid%20Architecture%20Diagram.png)
-
 **Submission flow:** A client posts raw text to `/submit`; it passes through the LLM classifier and the stylometric heuristics, whose scores are combined into a single confidence, mapped to a transparency label, logged, and returned. **Appeal flow:** A client posts a `submission_id` and reason to `/appeal`; the system flips that submission's status to `under review`, logs the appeal, and confirms it.
 
 ## Detection Signals
@@ -166,3 +164,9 @@ One way the spec in planning.md helped me is through constructing the Architectu
 - *What it produced:* It diagnosed that only `app.py` called `load_dotenv()`, so `signals.py` never loaded `.env` when run standalone, and the `Groq()` client was constructed outside the `try` block, so a missing key crashed instead of degrading.
 - *What I changed or overrode:* I had it add `load_dotenv()` to `signals.py` and move the client construction inside the `try`, so a missing/invalid key now falls back to a neutral `0.5` score instead of raising.
 
+## Demo Video
+
+Link: 
+
+This demo video includes the following:
+- 
